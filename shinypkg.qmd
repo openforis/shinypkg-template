@@ -1,0 +1,351 @@
+---
+title: "Shiny app as a package"
+subtitle: "Instructions to create a structured package around a shinyapp"
+format: html
+editor: visual
+execute:
+  eval: false
+---
+
+# Introduction {.unnumbered}
+
+This tutorial lay out the main steps and provide R code to create a structure for a shiny application shipped as a package. The main advantage of this approach is to make complex applications easier to read and to maintain, mainly thanks to:
+
+1.  Forcing code documentation
+2.  For code splitting between analytical functions and shiny modules,
+3.  Set dependency package versions for ensuring the app will work even if dependency updates would break the package code.
+4.  Combine R, Rstudio and Github for backup and easy shipping of the application's package.
+5.  Package automated checks for CRAN submission that are helpful to debug and improve the code.
+
+The two main changes with non-package R code are:
+
+-   Each function from another package should be explicit, using `pkg::fct()` instead of `library(pkg); fct()`.
+
+-   Functions created in the package should be documented with:
+
+    -   A short description of what the function does,
+
+    -   An explanation of each input variable,
+
+    -   An description of the function's output
+
+    -   An example of the function in action
+
+While potentially more time consuming at first, writing a complex shiny app code as a package makes it much easier to maintain and for other to understand and contribute.
+
+This document is based on the following references:
+
+-   <https://engineering-shiny.org/index.html>
+-   <https://r-pkgs.org/>
+-   <https://happygitwithr.com/>
+-   <https://rstudio.github.io/bslib/>
+-   <https://appsilon.github.io/shiny.i18n/articles/basics.html>
+-   <https://rstudio.github.io/crosstalk/using.html>
+
+### 
+
+# Setup your Github repository and R project 
+
+Step-by-step:
+
+-   Decide your package name, through this tutorial we will use **'pkg_name'**, and the github account where the package repository is hosted: **'gh_name'**.
+-   Create a Github repository with the package name as repository name.
+    -   Ideally add a Readme during repo creation and a gitignore for R. A license can be done later.
+-   Setup connection between Github and Rstudio (see happy git with R in the reference list for detailed instructions).
+-   In Rstudio, create a new project, choose **version control** as type of project and link your Github repository (with `https` or `ssh` depending on how you connected Rstudio and Github).
+-   Commit and push the project to have Rstudio Rproj files sync with Github.
+
+# Create your core package files
+
+Once you have a github repo and linked R project, the rest of the setup is done with R using functions from the `devtools` and `usethis` packages mostly.
+
+You can either create a temporary R script or markdown/quarto document in your project to have the key functions ready to run or copy/paste from here to the console.
+
+The package creation functions shown in this section are needed only one time. Then once the package structure is in place, a small group of function will automatically update the package documentation files, load the function to the environment for testing or check the package for issues in the code or the file structure.
+
+Here is a core set of instructions to setup your package:
+
+```{r}
+## Load install libraries (install first if needed)
+library(devtools) 
+library(usethis) 
+library(roxygen2)
+
+## Create package
+usethis::create_package("path_to_your_rproject/pkg_name")
+
+## Add dependencies, i.e. all the packages that are needed to run the package's functions. Here is a non exhaustive list
+## + Shiny
+usethis::use_package("bslib") 
+usethis::use_package("bsicons") 
+usethis::use_package("shiny") 
+usethis::use_package("shinyjs") 
+usethis::use_package("shinyWidgets") 
+usethis::use_package("shinyFiles")
+usethis::use_package("shiny.i18n")
+
+## + Tidyverse (Better to call packages individually)
+usethis::use_package("magrittr") 
+usethis::use_package("readr") 
+usethis::use_package("tidyselect") 
+usethis::use_package("dplyr") 
+usethis::use_package("ggplot2") 
+usethis::use_package("tibble") 
+usethis::use_package("forcats")
+usethis::use_package("purrr") 
+usethis::use_package("stringr") 
+usethis::use_package("rlang") 
+# usethis::use_package("tidyverse", type = "depends")
+
+## + Geospatial
+usethis::use_package("sf") 
+usethis::use_package("terra") 
+usethis::use_package("units")
+
+## Add license
+usethis::use_mit_license()
+
+## Add github actions
+usethis::use_github_action_check_standard()
+
+```
+
+# Run often
+
+These three functions can be run often for after buidling package functions for analytics or shiny app UI and server.
+
+```{r}
+## Run often, as soon as you have a new function created or updated
+devtools::load_all() 
+
+## Update function documentation
+devtools::document()
+
+## Runs checks to find errors in the code that prevent functions
+## to work or notes that would make the package refused by CRAN.
+## Useful for debugging 
+devtools::check()
+```
+
+Once your package is ready for production, you can:
+
+-   Install the package from local files
+
+    ```{r}
+    devtools::install()
+    ```
+
+-   Install from github
+
+    ```{r}
+    remotes::install_github("gh_name/pkg_name")
+    ```
+
+# Barebone App
+
+## File naming
+
+Under the project `R/` directory, there will be a combination of functions that process and analyse data, shiny modules functions and one main shiny app function. It is recommended to prefix the modules names and file names with `'mod_*_ui.R'` and `'mod_*_server.R'` and make the main shiny app function name and file name something like: `'shiny_run_*.R'`.
+
+Calculation function can also be prefixed with `fct_*.R` to make then clearly visible from shiny related functions in `R/` directory's file names and to other packages functions in the code.
+
+## ShinyApp structure in the package `shiny_run_fctname()` function
+
+In this code minimal example, the app will contains three modules, one for each page and buttons to move to the tool and about pages from the home page.
+
+A group of reactive values embedded in `rv` can pass on objects between the modules.
+
+For a navbar page style with a navigation bar for separating a landing page, a tool page and an about page with references, the following general structure works well:
+
+``` r
+shiny_run_fctname <- function(...) {
+
+  ##
+  ## GLOBAL #######
+  ##
+
+  ## + Javascript handlers ======
+  ## !! Examples:  like i18n, custom JS code, html trackers for shinyapps.io traffic
+  
+  ## ++ Translation ------
+  i18n <- shiny.i18n::Translator$new(
+    translation_json_path = system.file(
+      "assets/translations.json", package = "pkg_name"
+      )
+    )
+  i18n$set_translation_language('en')
+
+  ## ++ Javascript handler to updateTabsetPanel() ------
+  # js_code <- "XXX"
+  
+  ## ++ Javascript event click tracker for  plausible/simple analytics ------
+
+
+  ## + UI Elements ======
+  ## Store UI elements in objects to make the app UI organisation easier to follow
+
+  ## App title with logo
+  app_title <- div(
+    tags$a(
+      href = "./",
+      alt = "alt-title",
+      tags$img(src="assets/logo.png", height = '60px'),
+      .noWS = "before-end"
+    ),
+    i18n$t("APP TITLE"),
+    style = "display:inline;font-color: black !important"
+  )
+
+  ## Dropdown list for language selection
+  language_selector <- shinyWidgets::pickerInput(
+    inputId = "language",
+    label = NULL,
+    choices = c("en"),
+    choicesOpt =  list(content = c('<i class="fi fi-gb"></i> EN')),
+    # choices = c("en", "fr", "sp"),
+    # choicesOpt =  list(content = c('<i class="fi fi-gb"></i> EN', '<i class="fi fi-fr"></i> FR', '<i class="fi fi-es"></i> ES')),
+    selected = "en",
+    width = "auto",
+    option = shinyWidgets::pickerOptions(style = "z-index:10000;")
+  )
+
+
+
+  ##
+  ## UI ########################################################################
+  ##
+
+  ui <- shiny::tagList(
+
+    ## + Setup =================================================================
+
+    ## HTML head code
+    shiny::withMathJax(),
+    shinyjs::useShinyjs(),
+    shinyWidgets::useSweetAlert(),
+    shiny.i18n::usei18n(i18n),
+    ## HTML tracker code
+    # tags$head(HTML( ))
+    ## custom JS code defined in GLOBAL section
+    # tags$head(tags$script(HTML(js_code))), 
+    ## custom CSS file located in assets/
+    ## tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "assets/style.css")),
+    ## Load flag-icons if needed, for translation for example.
+    htmltools::htmlDependency(
+      name = "flag-icons",
+      version = "6.6.6",
+      src = c(href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/"),
+      stylesheet = "css/flag-icons.min.css"
+    ),
+
+    ## + Layout UI elements ====================================================
+
+    bslib::page_navbar(
+      id = "navbar",
+      ## ++ App title object ----- 
+      title = app_title,
+      window_title = "widow_title",
+      ## ++ Customize theme if needed ------
+      theme = bs_theme(
+        version = 5,
+        bootswatch = "yeti",
+        # base_font = font_collection(
+          # "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue",
+          # "Arial", "Noto Sans", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji",
+          # "Segoe UI Symbol","Noto Color Emoji"
+          # ),
+        # code_font = font_google("Fira Code"),
+        # heading_font = font_google("Lato"),
+        # primary = "#4991B0",
+        # secondary = "#77AB16",
+      ),
+      #navbar_options = navbar_options(bg = "#f8f9fa"),
+      fillable = FALSE, ## Not needed for now, make a tab fill the whole browser, cool for leaflets
+      # inverse = FALSE, ## Not working well with yeti, overridden in assets/styles.css
+
+      ## + Panels ####
+      nav_spacer(), ## align menu to the right
+
+      nav_panel(
+        title = i18n$t("Home"),
+        value = "home",
+        #icon = icon("campground"),
+        mod_home_UI("tab_home", i18n = i18n)
+      ),
+
+      nav_panel(
+        title = i18n$t("Tool"),
+        value = "tool",
+        #icon = icon("mug-hot"),
+        mod_tool_UI("tab_tool", i18n = i18n)
+      ),
+
+      nav_panel(
+        title = i18n$t("About"),
+        value = "about",
+       #icon = icon("info"),
+        mod_about_UI("tab_about", i18n = i18n)
+      ),
+
+      nav_item(language_selector)
+
+    ) |> ## End page_navbar
+      ## Make navbar larger before switch to menu button
+      shiny::tagAppendAttributes(.cssSelector = "nav", class = "navbar-expand-md")
+  ) ## End tagList
+
+
+  ##
+  ## Server ####################################################################
+  ##
+
+  server <- function(input, output, session) {
+
+    ## + Initiate reactive values list to be passed between modules ####
+    ## See https://rtask.thinkr.fr/communication-between-modules-and-its-whims/
+    rv <- reactiveValues(
+      #checklist = app_checklist,
+      inputs    = reactiveValues(),
+      checks    = reactiveValues(),
+      sims      = reactiveValues(),
+      res       = reactiveValues(),
+      gt        = reactiveValues(),
+      histo     = reactiveValues(),
+      actions   = reactiveValues()
+    )
+
+    ## Save language value to show/hide divs with shinyjs
+    r_lang <- reactive({ input$language })
+
+    ## + Module server functions ####
+    mod_home_server("tab_home", rv = rv)
+
+    mod_tool_server("tab_tool", rv = rv)
+
+    mod_about_server("tab_about", rv = rv)
+
+    ## + Trans modules events ####
+    observeEvent(input$language, {
+      shiny.i18n::update_lang(language = input$language)
+    })
+
+    # observeEvent(rv$actions$to_home, {
+    #   updateTabsetPanel(session, "navbar", "home")
+    # })
+
+    observeEvent(rv$actions$to_tool, {
+      nav_select(id = "navbar", selected = "tool")
+    })
+
+    observeEvent(rv$actions$to_about, {
+      nav_select(id = "navbar", selected = "about")
+    })
+
+
+  } ## END server
+
+  ## App call ###############################################################
+  shinyApp(ui, server, ...)
+
+} ## END function
+```
