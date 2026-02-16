@@ -1,7 +1,9 @@
 ---
 title: "Shiny app as a package"
 subtitle: "Instructions to create a structured package around a shinyapp"
-format: html
+format: 
+  html:
+    embed-resources: true
 editor: visual
 execute:
   eval: false
@@ -33,7 +35,7 @@ The two main changes with non-package R code are:
 
 While potentially more time consuming at first, writing a complex shiny app code as a package makes it much easier to maintain and for other to understand and contribute.
 
-This document is based on the following references:
+**This document is based on the following references:**
 
 -   <https://engineering-shiny.org/index.html>
 -   <https://r-pkgs.org/>
@@ -42,13 +44,33 @@ This document is based on the following references:
 -   <https://appsilon.github.io/shiny.i18n/articles/basics.html>
 -   <https://rstudio.github.io/crosstalk/using.html>
 
-### 
+**The core steps of the package development are:**
+
+1.  Create a Github repository to host the application's package
+2.  Create a linked Rstudio project to the Github repository
+3.  Create the package core files in the Rstudio project
+4.  Copy/paste the function and module template files to the R project
+5.  Develop the application functions (modules and analytical), going back and forth between these 4 actions:
+    1.  Edit the template files to customize the application
+    2.  Create / update new files / functions as necessary
+    3.  Load functions to the local environment, update documentation, run checks (resp. `load_all()`, `document()` and `check()` from the `devtools` package)
+    4.  Commit and push changes to the Github repository.
 
 # Setup your Github repository and R project 
 
-Step-by-step:
+## Abbreviations
 
--   Decide your package name, through this tutorial we will use **'pkg_name'**, and the github account where the package repository is hosted: **'gh_name'**.
+Through this tutorial we will use the following names that should be replace with your own chosen names specific to your package. They are all caps to be easy to spot but should be small caps in your project.
+
+-   **PKGNAME**: name of your package.
+
+-   **GHACCOUNT**: Github account where the package repository is hosted.
+
+-   **`shiny_run_APPNAME()`**: the function that will launch the core Shiny app of the package. APPNAME and PKGNAME could be the same.
+
+## Step-by-step
+
+-   Decide your package name.
 -   Create a Github repository with the package name as repository name.
     -   Ideally add a Readme during repo creation and a gitignore for R. A license can be done later.
 -   Setup connection between Github and Rstudio (see happy git with R in the reference list for detailed instructions).
@@ -72,7 +94,7 @@ library(usethis)
 library(roxygen2)
 
 ## Create package
-usethis::create_package("path_to_your_rproject/pkg_name")
+usethis::create_package("LOCALPATH/PKGNAME")
 
 ## Add dependencies, i.e. all the packages that are needed to run the package's functions. Here is a non exhaustive list
 ## + Shiny
@@ -135,10 +157,10 @@ Once your package is ready for production, you can:
     devtools::install()
     ```
 
--   Install from github
+-   Install from Github
 
     ```{r}
-    remotes::install_github("gh_name/pkg_name")
+    remotes::install_github("GHACCOUNT/PKGNAME")
     ```
 
 # Barebone App
@@ -147,13 +169,13 @@ Once your package is ready for production, you can:
 
 Under the project `R/` directory, there will be a combination of functions that process and analyse data, shiny modules functions and one main shiny app function. It is recommended to prefix the modules names and file names with `'mod_*_ui.R'` and `'mod_*_server.R'` and make the main shiny app function name and file name something like: `'shiny_run_*.R'`.
 
-Calculation function can also be prefixed with `fct_*.R` to make then clearly visible from shiny related functions in `R/` directory's file names and to other packages functions in the code.
+Calculation functions can also be prefixed with `fct_*.R` to make then clearly visible from shiny related functions in `R/` directory's file names and to other packages functions in the code.
 
-## ShinyApp structure in the package `shiny_run_fctname()` function
+## ShinyApp structure in the package `shiny_run_APP()` function
 
-In this code minimal example, the app will contains three modules, one for each page and buttons to move to the tool and about pages from the home page.
+In this code minimal example, the app contains three modules, one for each page: home, tool and about.
 
-A group of reactive values embedded in `rv` can pass on objects between the modules.
+A group of reactive values embedded in `rv` can pass on reactive objects between the modules.
 
 For a navbar page style with a navigation bar for separating a landing page, a tool page and an about page with references, the following general structure works well:
 
@@ -170,7 +192,7 @@ shiny_run_fctname <- function(...) {
   ## ++ Translation ------
   i18n <- shiny.i18n::Translator$new(
     translation_json_path = system.file(
-      "assets/translations.json", package = "pkg_name"
+      "assets/translations.json", package = "PKGNAME"
       )
     )
   i18n$set_translation_language('en')
