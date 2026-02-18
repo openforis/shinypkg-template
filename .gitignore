@@ -1,6 +1,6 @@
 ## Custom gitignore
-*.html
-!shinypkg.html
+#*.html
+#!shinypkg.html
 *.DS_Store
 
 # History files
@@ -52,3 +52,6 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+/.quarto/
+**/*.quarto_ipynb
