@@ -5,6 +5,12 @@ format:
   html:
     embed-resources: true
     output-file: index.html
+    toc-location: left
+    toc-depth: 3
+    theme: 
+      light: flatly
+      dark: darkly
+    highlight-style: github
 editor: visual
 execute:
   echo: true
