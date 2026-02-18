@@ -1,5 +1,6 @@
 ## Custom gitignore
 *.html
+*.DS_Store
 
 # History files
 .Rhistory

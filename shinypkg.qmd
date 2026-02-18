@@ -11,17 +11,18 @@ execute:
 
 # Introduction {.unnumbered}
 
-This tutorial lay out the main steps and provide R code to create a structure for a shiny application shipped as a package. The main advantage of this approach is to make complex applications easier to read and to maintain, mainly thanks to:
+This tutorial lays out the main steps and provide R code to create a barebone shiny application shipped as a package. The main advantage of this approach is to make complex applications easier to read and to maintain, mainly thanks to:
 
-1.  Forcing code documentation
-2.  For code splitting between analytical functions and shiny modules,
-3.  Set dependency package versions for ensuring the app will work even if dependency updates would break the package code.
+1.  Forcing code documentation,
+2.  Code splitting between analytical functions and shiny modules,
+3.  Setting dependency package versions for ensuring the app will work even if dependency updates would break the package code.
 4.  Combine R, Rstudio and Github for backup and easy shipping of the application's package.
 5.  Package automated checks for CRAN submission that are helpful to debug and improve the code.
+6.  Package users can access the shiny application with 2 line codes (one to install the package, one to run the app).
 
 The two main changes with non-package R code are:
 
--   Each function from another package should be explicit, using `pkg::fct()` instead of `library(pkg); fct()`.
+-   Each function call from another package should be explicit, using `pkg::fct()` instead of `library(pkg); fct()`.
 
 -   Functions created in the package should be documented with:
 
@@ -56,9 +57,11 @@ While potentially more time consuming at first, writing a complex shiny app code
     3.  Load functions to the local environment, update documentation, run checks (resp. `load_all()`, `document()` and `check()` from the `devtools` package)
     4.  Commit and push changes to the Github repository.
 
-# Setup your Github repository and R project 
+# Setup
 
-## Abbreviations
+## Github repository and R project 
+
+### Abbreviations
 
 Through this tutorial we will use the following names that should be replace with your own chosen names specific to your package. They are all caps to be easy to spot but should be small caps in your project.
 
@@ -68,7 +71,7 @@ Through this tutorial we will use the following names that should be replace wit
 
 -   **`shiny_run_APPNAME()`**: the function that will launch the core Shiny app of the package. APPNAME and PKGNAME could be the same.
 
-## Step-by-step
+### Step-by-step
 
 -   Decide your package name.
 -   Create a Github repository with the package name as repository name.
@@ -77,13 +80,11 @@ Through this tutorial we will use the following names that should be replace wit
 -   In Rstudio, create a new project, choose **version control** as type of project and link your Github repository (with `https` or `ssh` depending on how you connected Rstudio and Github).
 -   Commit and push the project to have Rstudio Rproj files sync with Github.
 
-# Create your core package files
+## Core package files
 
 Once you have a github repo and linked R project, the rest of the setup is done with R using functions from the `devtools` and `usethis` packages mostly.
 
-You can either create a temporary R script or markdown/quarto document in your project to have the key functions ready to run or copy/paste from here to the console.
-
-The package creation functions shown in this section are needed only one time. Then once the package structure is in place, a small group of function will automatically update the package documentation files, load the function to the environment for testing or check the package for issues in the code or the file structure.
+You can either create a temporary R script or markdown/quarto document in your project to have the key functions ready to run or copy/paste from here to the console. The package creation functions shown in this section are needed only one time.
 
 Here is a core set of instructions to setup your package:
 
@@ -132,9 +133,9 @@ usethis::use_github_action_check_standard()
 
 ```
 
-# Run often
+### Updating package content
 
-These three functions can be run often for after buidling package functions for analytics or shiny app UI and server.
+These three functions can be run often after building/updating the package's functions for analytics or the shiny app UI and server.
 
 ```{r}
 ## Run often, as soon as you have a new function created or updated
