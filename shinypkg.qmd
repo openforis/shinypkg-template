@@ -4,6 +4,7 @@ subtitle: "Instructions to create a structured package around a shinyapp"
 format: 
   html:
     embed-resources: true
+    output-file: index.html
 editor: visual
 execute:
   echo: true
