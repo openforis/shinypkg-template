@@ -5,8 +5,10 @@ format:
   html:
     embed-resources: true
     output-file: index.html
+    toc: true
     toc-location: left
     toc-depth: 3
+    toc-expand: true
     theme: 
       light: flatly
       dark: darkly
