@@ -33,18 +33,8 @@ shiny_run_APPNAME <- function(...) {
   )
   i18n$set_translation_language('en')
 
-  ## + Javascript handler to updateTabsetPanel() ===============================
-
-  ## + Javascript custom handler for PLAUSIBLE =================================
-  js_plausible_event <- "
-    window.addEventListener('shiny:connected', function() {
-      Shiny.addCustomMessageHandler('plausible', function(data) {
-        if (window.plausible) {
-          window.plausible(data.event);        // send event
-        }
-      });
-    });
-    "
+  ## + Javascript ===============================
+  ## Script moved to files in inst/assets and called in
 
 
   ## + UI Elements =============================================================
@@ -60,12 +50,26 @@ shiny_run_APPNAME <- function(...) {
     i18n$t("APP TITLE"),
     style = "display:inline;font-color: black !important"
   )
-
   app_widow_title <- "APPNAME"
 
   ## App colors
   app_primary_color   <- "#4991B0"
   app_secondary_color <- "#77AB16"
+
+  ## App theme
+  app_theme <- bslib::bs_theme(
+    version = 5,
+    bootswatch = "yeti",
+    base_font = bslib::font_collection(
+      "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue",
+      "Arial", "Noto Sans", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji",
+      "Segoe UI Symbol","Noto Color Emoji"
+    ),
+    code_font = bslib::font_google("Fira Code"),
+    heading_font = bslib::font_google("Lato"),
+    primary = app_primary_color,
+    secondary = app_secondary_color,
+  )
 
   ## Dropdown list for language selection
   language_selector <- shinyWidgets::pickerInput(
@@ -100,7 +104,7 @@ shiny_run_APPNAME <- function(...) {
     ## While waiting for bslib::update_navs() to be included in bslib, it is not possible to use
     ## updateTabsetPanel() in a module.
     ## JS: receive message {id: "<ns-tool_tabs>", value: "res"} and click the matching element
-    tags$head(tags$script(HTML(js_activate_tab))),
+    tags$head(tags$script(src = "assets/js_activate_tab.js")),
     ## CSS Style
     tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "assets/style.css")),
     ## HTML Dependency - flag icons used for translation selector
@@ -119,19 +123,7 @@ shiny_run_APPNAME <- function(...) {
       id = "navbar",
       title = app_title,
       window_title = app_window_title,
-      theme = bs_theme(
-        version = 5,
-        bootswatch = "yeti",
-        base_font = font_collection(
-          "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue",
-          "Arial", "Noto Sans", "sans-serif", "Apple Color Emoji", "Segoe UI Emoji",
-          "Segoe UI Symbol","Noto Color Emoji"
-        ),
-        code_font = font_google("Fira Code"),
-        heading_font = font_google("Lato"),
-        primary = app_primary_color,
-        secondary = app_secondary_color,
-      ),
+      theme = app_theme,
       navbar_options = navbar_options(bg = "#f8f9fa"),
       fillable = FALSE, ## Not needed for now, make a tab fill the whole browser, cool for leaflets
       # inverse = FALSE, ## Not working well with yeti, overridden in assets/styles.css
