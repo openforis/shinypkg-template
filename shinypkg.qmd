@@ -139,7 +139,13 @@ usethis::use_package("units")
 usethis::use_mit_license()
 
 ## Add github actions
-usethis::use_github_action_check_standard()
+## + package checks
+# usethis::use_github_action_check_standard()
+usethis::use_github_action("check-standard")
+
+## + turn package doc into GH pages
+# usethis::use_pkgdown()
+usethis::use_github_action("pkgdown")
 
 ```
 
@@ -176,11 +182,142 @@ Once your package is ready for production, you can:
 
 # Barebone App
 
-## File naming
+The barebone app consists of a shiny application with the following characteristics:
 
-Under the project `R/` directory, there will be a combination of functions that process and analyse data, shiny modules functions and one main shiny app function. It is recommended to prefix the modules names and file names with `'mod_*_ui.R'` and `'mod_*_server.R'` and make the main shiny app function name and file name something like: `'shiny_run_*.R'`.
+-   a Boostrap 5 general design template,
 
-Calculation functions can also be prefixed with `fct_*.R` to make then clearly visible from shiny related functions in `R/` directory's file names and to other packages functions in the code.
+-   a navigation bar,
+
+-   three pages (Home, Tool, About)
+
+-   The home page has a modern design with hero section and cards to place context information
+
+-   The tool page is structured with a sidebar and tabsets to spread the figures / tables into various sub-pages.
+
+-   The tool allow for direct translation with the `i18n` package,
+
+-   pkgdown and Github Actions make the package documentation and tutorials turned automatically into Github webpages.
+
+## R scripts
+
+### File naming
+
+All the functions are placed under the project's `R/` directory. File names should be the same as the function names, such as `function_name.R` and `function_name()`:
+
+-   functions that process and analyse data, recommended file names: `fct_*.R` (prefixing is not mandatory but recommended to make then clearly visible from shiny related functions in `R/` and from other packages functions in the code),
+
+-   main shiny app function, recommended naming: `shiny_run_PKGNAME.R`,
+
+-   shiny module functions. It is recommended to prefix file names with `'mod_*_ui.R'` and `'mod_*_server.R'`.
+
+### Get the template files
+
+The R files can be downloaded from the template Github repository and placed in a new package `R/` sub-folder either manually or with the following code:
+
+```{r}
+## Requires packages 'gh' (comes with usethis) and 'purrr'
+dl_dir <- "R"
+gh_paths <- gh::gh(
+  "/repos/{owner}/{repo}/contents/{path}",
+  owner = "openforis", repo = "shinypkg-template", path = dl_dir
+  )
+
+if (length(list.files(dl_path)) == 0) {
+  dir.create(dl_dir)
+  purrr::walk(seq_along(gh_paths), function(x){
+    download.file(
+      url = gh_paths[[x]]$download_url,
+      destfile = gh_paths[[x]]$path
+    )
+  })
+}
+```
+
+**NOTE 1**: in the main file the application name, function name, title and other elements need to be tailored to your application. In particular:
+
+-   In `R/shiny_run_APPNAME.R`:
+
+    -   Script name itself
+
+    -   `shiny_run_APPNAME <- function(...)`
+
+    -   `translation_json_path = system.file("assets/translations.json", package = "PKGNAME")`
+
+    -   Objects related to UI elements:
+
+        -   app_title
+
+        -   app_window_title
+
+        -   footer
+
+-   In `R/zzz.R`:
+
+    -   `system.file("assets/translations.json", package = "PKGNAME")`
+
+**NOTE 2:** At this stage, running the app function will not work as the app requires assets that need to be downloaded and the app installed to make the assets available.
+
+## Assets 
+
+The shiny app works with a number of assets, i.e. images, CSS style, javascript handlers, translation files etc.
+
+In a standard shiny app, these files are placed in a `www/` folder under the app directory. But when the app is shipped as a package the path to the files have to be directed to the package files specific to each machine.
+
+The solution is to place the files under `inst/assets` in the package directory, which can be made available with:
+
+```{r}
+system.file("assets/FILENAME", package = "PKGNAME")
+```
+
+To avoid having to point to the package files for each asset, a script `R/zzz.R` can be added with the following code, in order to shorten the paths to `assets/FILENAME`:
+
+```{r}
+#| file: "R/zzz.R"
+#| lst-cap: "Script from R/zzz.R"
+```
+
+The assets for the backbone app are:
+
+-   a javascript code to handle changing tabset within a navbar page
+
+-   logo and hero image
+
+-   CSS style tweaks
+
+-   translation
+
+The assets can be downloaded from the Github repository manually or with this code:
+
+```{r}
+dl_dir <- "inst/assets"
+gh_paths <- gh::gh(
+  "/repos/{owner}/{repo}/contents/{path}",
+  owner = "openforis", repo = "shinypkg-template", path = dl_dir
+  )
+
+if (length(list.files(dl_dir)) == 0) {
+  dir.create("inst")
+  dir.create(dl_dir)
+  purrr::walk(seq_along(gh_paths), function(x){
+    download.file(
+      url = gh_paths[[x]]$download_url,
+      destfile = gh_paths[[x]]$path
+    )
+  })
+}
+
+```
+
+**NOTE 1**: This doesn't work for only one case: the translation file called in the main app script. The following code snippet requires the `system.file()` function explicitly in the main app script `R/shiny_run_APPNAME.R`:
+
+```{r}
+#| lst-cap: "Code snippet pointing to the translation file in: R/shiny_run_APPNAME.R"
+i18n <- shiny.i18n::Translator$new(
+    translation_json_path = system.file("assets/translations.json", package = "PKGNAME")
+  )
+```
+
+## Data template
 
 ## ShinyApp structure in the package `shiny_run_APP()` function
 
