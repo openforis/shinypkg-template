@@ -2,6 +2,8 @@
 #*.html
 #!shinypkg.html
 *.DS_Store
+/inst/logo.pptx
+/inst/~$logo.pptx
 
 # History files
 .Rhistory
