@@ -21,6 +21,8 @@ execute:
 
 # Introduction {.unnumbered}
 
+## Why developing shiny applications as R packages {.unnumbered}
+
 This tutorial lays out the main steps and provide R code to create a barebone shiny application shipped as a package. The main advantage of this approach is to make complex applications easier to read and to maintain, mainly thanks to:
 
 1.  Forcing code documentation,
@@ -46,26 +48,33 @@ The two main changes with non-package R code are:
 
 While potentially more time consuming at first, writing a complex shiny app code as a package makes it much easier to maintain and for other to understand and contribute.
 
-**This document is based on the following references:**
+## Where to find more information {.unnumbered}
 
--   <https://engineering-shiny.org/index.html>
+This document is based on the following references:
+
 -   <https://r-pkgs.org/>
 -   <https://happygitwithr.com/>
 -   <https://rstudio.github.io/bslib/>
 -   <https://appsilon.github.io/shiny.i18n/articles/basics.html>
 -   <https://rstudio.github.io/crosstalk/using.html>
+-   <https://engineering-shiny.org/index.html>
 
-**The core steps of the package development are:**
+## Core steps {.unnumbered}
 
-1.  Create a Github repository to host the application's package
-2.  Create a linked Rstudio project to the Github repository
-3.  Create the package core files in the Rstudio project
-4.  Copy/paste the function and module template files to the R project
-5.  Develop the application functions (modules and analytical), going back and forth between these 4 actions:
-    1.  Edit the template files to customize the application
-    2.  Create / update new files / functions as necessary
-    3.  Load functions to the local environment, update documentation, run checks (resp. `load_all()`, `document()` and `check()` from the `devtools` package)
-    4.  Commit and push changes to the Github repository.
+The core steps of the package development are:
+
+1.  Create a Github repository to host the application's package,
+2.  Create a linked Rstudio project to the Github repository,
+3.  Create the package core files in the Rstudio project,
+4.  Copy/paste the function and module template files to the R project,
+5.  Install the barebone package to make assets available,
+6.  Develop the application functions (modules and analytical), going back and forth between these 4 actions:
+    1.  Edit the template files to customize the application,
+    2.  Create / update new files / functions as necessary,
+    3.  Load functions to the local environment, update documentation, run checks (resp. `load_all()`, `document()` and `check()` from the `devtools` package),
+    4.  Commit and push changes to the Github repository,
+    5.  Install the package,
+    6.  Develop tutorials with vignettes.
 
 # Setup
 
@@ -85,7 +94,9 @@ Through this tutorial we will use the following names that should be replace wit
 
 -   Decide your package name.
 -   Create a Github repository with the package name as repository name.
-    -   Ideally add a Readme during repo creation and a gitignore for R. A license can be done later.
+    -   Ideally include a Readme during repo creation and a gitignore for R. A license can be done later.
+
+        ![](gh-repo.png)
 -   Setup connection between Github and Rstudio (see happy git with R in the reference list for detailed instructions).
 -   In Rstudio, create a new project, choose **version control** as type of project and link your Github repository (with `https` or `ssh` depending on how you connected Rstudio and Github).
 -   Commit and push the project to have Rstudio Rproj files sync with Github.
@@ -148,37 +159,6 @@ usethis::use_github_action("check-standard")
 usethis::use_github_action("pkgdown")
 
 ```
-
-### Updating package content
-
-These three functions can be run often after building/updating the package's functions for analytics or the shiny app UI and server.
-
-```{r}
-## Run often, as soon as you have a new function created or updated
-devtools::load_all() 
-
-## Update function documentation
-devtools::document()
-
-## Runs checks to find errors in the code that prevent functions
-## to work or notes that would make the package refused by CRAN.
-## Useful for debugging 
-devtools::check()
-```
-
-Once your package is ready for production, you can:
-
--   Install the package from local files
-
-    ```{r}
-    devtools::install()
-    ```
-
--   Install from Github
-
-    ```{r}
-    remotes::install_github("GHACCOUNT/PKGNAME")
-    ```
 
 # Barebone App
 
@@ -259,34 +239,17 @@ if (length(list.files(dl_path)) == 0) {
 
 ## Assets 
 
-The shiny app works with a number of assets, i.e. images, CSS style, javascript handlers, translation files etc.
+The shiny app works with a number of assets, i.e. images, CSS style, javascript handlers, translation files etc. The assets for the barebone app are:
 
-In a standard shiny app, these files are placed in a `www/` folder under the app directory. But when the app is shipped as a package the path to the files have to be directed to the package files specific to each machine.
-
-The solution is to place the files under `inst/assets` in the package directory, which can be made available with:
-
-```{r}
-system.file("assets/FILENAME", package = "PKGNAME")
-```
-
-To avoid having to point to the package files for each asset, a script `R/zzz.R` can be added with the following code, in order to shorten the paths to `assets/FILENAME`:
-
-```{r}
-#| file: "R/zzz.R"
-#| lst-cap: "Script from R/zzz.R"
-```
-
-The assets for the backbone app are:
-
--   a javascript code to handle changing tabset within a navbar page
+-   javascript code to handle changing tabset within a navbar page
 
 -   logo and hero image
 
 -   CSS style tweaks
 
--   translation
+-   translation file
 
-The assets can be downloaded from the Github repository manually or with this code:
+The assets can be downloaded from the Github repository manually or with this code from within your package directory in a R project (important for enabling relative pathing):
 
 ```{r}
 dl_dir <- "inst/assets"
@@ -308,7 +271,24 @@ if (length(list.files(dl_dir)) == 0) {
 
 ```
 
-**NOTE 1**: This doesn't work for only one case: the translation file called in the main app script. The following code snippet requires the `system.file()` function explicitly in the main app script `R/shiny_run_APPNAME.R`:
+**IMPORTANT!**
+
+In a standard shiny app, these files are placed in a `www/` folder under the app directory. But when the app is shipped as a package the path to the files have to be directed to the package files specific to each machine.
+
+The solution is to place the files under `inst/assets` in the package directory (they will go to `assets` in the package directory), and find their path with:
+
+```{r}
+system.file("assets/FILENAME", package = "PKGNAME")
+```
+
+To avoid having to point to the package files for each asset, a script `R/zzz.R` was added with the following code, in order to shorten the paths to `assets/FILENAME`:
+
+```{r}
+#| file: "R/zzz.R"
+#| lst-cap: "Script from R/zzz.R"
+```
+
+**NOTE 1**: This doesn't work only for one case: the translation file called in the main app script. The following code snippet requires the `system.file()` function explicitly in the main app script `R/shiny_run_APPNAME.R`:
 
 ```{r}
 #| lst-cap: "Code snippet pointing to the translation file in: R/shiny_run_APPNAME.R"
@@ -317,12 +297,55 @@ i18n <- shiny.i18n::Translator$new(
   )
 ```
 
-## Data template
+**NOTE 2**: Once the assets are downloaded and placed in the correct folder, the package needs to be installed once to make the assets available. THis can be done with:
 
-## ShinyApp structure in the package `shiny_run_APP()` function
+```{r}
+devtools::install()
+```
 
-In this code minimal example, the app contains three modules, one for each page: home, tool and about.
+**Any change, addition or deletion of assets has to be followed by the package installation to be available form the app.**
 
-A group of reactive values embedded in `rv` can pass on reactive objects between the modules.
+## Data templates
 
-For a navbar page style with a navigation bar for separating a landing page, a tool page and an about page with references, the following general structure works well.
+If any dataset is required for the application, they should be placed in `inst/extdata`. They can be made available to the application with `system.files()` like the assets.
+
+## Shiny modules
+
+In the minimal working example, the app contains three modules, one for each page: home, tool and about. A group of reactive values embedded in `rv` can pass on reactive objects between the modules.
+
+This allows to split the code into smaller scripts, making it easier to collaborate and find bugs.
+
+# Developing further
+
+Now the real work can start, these three functions can be run often after building/updating the package's functions for analytics or the shiny app UI and server.
+
+```{r}
+## Run often, as soon as you have a new function created or updated
+devtools::load_all() 
+
+## Update function documentation
+devtools::document()
+
+## Runs checks to find errors in the code that prevent functions
+## to work or notes that would make the package refused by CRAN.
+## Useful for debugging 
+devtools::check()
+```
+
+Once your package is ready for production, you can:
+
+-   Install the package from local files
+
+    ```{r}
+    devtools::install()
+    ```
+
+-   Install from Github
+
+    ```{r}
+    remotes::install_github("GHACCOUNT/PKGNAME")
+    ```
+
+Installation is also required to when assets / data and added or modified.
+
+Happy coding!
