@@ -115,36 +115,30 @@ library(devtools)
 library(usethis) 
 library(roxygen2)
 
-## Create package
-usethis::create_package("LOCALPATH/PKGNAME")
+## Create package in a version controled Rproject
+## Requires overriding the .Rproj file 
+usethis::create_package(".")
 
-## Add dependencies, i.e. all the packages that are needed to run the package's functions. Here is a non exhaustive list
+## Add dependencies, i.e. all the packages that are needed to run the
+## package's functions. Here is a non exhaustive list needed for the
+## barebone app.
 ## + Shiny
+usethis::use_package("bsicons")
 usethis::use_package("bslib") 
-usethis::use_package("bsicons") 
+usethis::use_package("htmltools") 
 usethis::use_package("shiny") 
-usethis::use_package("shinyjs") 
-usethis::use_package("shinyWidgets") 
-usethis::use_package("shinyFiles")
 usethis::use_package("shiny.i18n")
+usethis::use_package("shinyjs") 
+usethis::use_package("shinyWidgets")
 
 ## + Tidyverse (Better to call packages individually)
-usethis::use_package("magrittr") 
-usethis::use_package("readr") 
-usethis::use_package("tidyselect") 
-usethis::use_package("dplyr") 
-usethis::use_package("ggplot2") 
-usethis::use_package("tibble") 
-usethis::use_package("forcats")
-usethis::use_package("purrr") 
-usethis::use_package("stringr") 
-usethis::use_package("rlang") 
-# usethis::use_package("tidyverse", type = "depends")
+usethis::use_package("dplyr")
+usethis::use_package("rlang")
 
-## + Geospatial
-usethis::use_package("sf") 
-usethis::use_package("terra") 
-usethis::use_package("units")
+## + misc 
+usethis::use_package("datasets")
+usethis::use_package("crosstalk")
+usethis::use_dev_package("d3scatter", remote = "jcheng5/d3scatter")
 
 ## Add license
 usethis::use_mit_license()
@@ -315,15 +309,40 @@ In the minimal working example, the app contains three modules, one for each pag
 
 This allows to split the code into smaller scripts, making it easier to collaborate and find bugs.
 
+## Deploying the app
+
+If you want to host the app online with a service like shinyapps.io, you need to add a file in the root folder (NOT in the R folder, named `app.R`, with the following code:
+
+```{r}
+# Launch the ShinyApp (Do not remove this comment)
+# To deploy, run: rsconnect::deployApp()
+# Or use the blue button on top of this file
+
+pkgload::load_all(export_all = FALSE, helpers = FALSE, attach_testthat = FALSE)
+PKGNAME::shiny_run_APPNAME()
+```
+
+Remember to replace PKGNAME and APPNAME with the actual package and shiny app function names.
+
+This will enable the **Publish** menu in the top right the script window in Rstudio. You can then click **Publish \> Publish application...** or run this command in the console:
+
+```{r}
+rsconnect::deployApp()
+```
+
 # Developing further
+
+## Run often
 
 Now the real work can start, these three functions can be run often after building/updating the package's functions for analytics or the shiny app UI and server.
 
 ```{r}
 ## Run often, as soon as you have a new function created or updated
 devtools::load_all() 
+PKGNAME::shiny_run_APPNAME()
 
 ## Update function documentation
+## Every time a package is added or a function documentation created/improved
 devtools::document()
 
 ## Runs checks to find errors in the code that prevent functions
@@ -346,6 +365,21 @@ Once your package is ready for production, you can:
     remotes::install_github("GHACCOUNT/PKGNAME")
     ```
 
-Installation is also required to when assets / data and added or modified.
+Installation is also required when assets / data are added or modified.
+
+## The app in action
+
+Following this tutorial, the barebone application was produced in the package shinypkgTest, available here: <https://github.com/gaelso/shinypkgTest>
+
+The app can be run locally with the following code:
+
+```{r}
+if (!require(remotes)) install.packages("remotes")
+if (!require(mocaredd)) remotes::install_github("gaelso/shinypkgTest")
+
+mocaredd::shiny_run_APPNAME()
+```
+
+Or online at: <https://gaelsola.shinyapps.io/shinypkgtest/>
 
 Happy coding!
