@@ -1,6 +1,7 @@
 project:
-  type: website
+  type: default
   output-dir: docs
 format:
   html:
     embed-resources: true
+    self-contained: true
