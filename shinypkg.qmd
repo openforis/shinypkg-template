@@ -1,5 +1,5 @@
 ---
-title: "Shiny app as a package"
+title: "R Shiny application as a package"
 subtitle: "Instructions to create a structured package around a shinyapp"
 format: 
   html:
@@ -18,6 +18,8 @@ execute:
   echo: true
   eval: false
 ---
+
+![](inst/assets/landing-img.jpg){fig-align="center" width="60%"}
 
 # Introduction {.unnumbered}
 
