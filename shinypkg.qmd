@@ -80,7 +80,7 @@ The core steps of the package development are:
 
 # Setup
 
-## Github repository and R project 
+## Github repository and R project
 
 ### Abbreviations
 
@@ -233,7 +233,7 @@ if (length(list.files(dl_path)) == 0) {
 
 **NOTE 2:** At this stage, running the app function will not work as the app requires assets that need to be downloaded and the app installed to make the assets available.
 
-## Assets 
+## Assets
 
 The shiny app works with a number of assets, i.e. images, CSS style, javascript handlers, translation files etc. The assets for the barebone app are:
 
