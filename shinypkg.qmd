@@ -313,7 +313,7 @@ This allows to split the code into smaller scripts, making it easier to collabor
 
 ## Deploying the app
 
-If you want to host the app online with a service like shinyapps.io, you need to add a file in the root folder (NOT in the R folder, named `app.R`, with the following code:
+If you want to host the app online with a service like shinyapps.io, you need to add a file in the root folder (NOT in the R folder), named `app.R`, with the following code:
 
 ```{r}
 # Launch the ShinyApp (Do not remove this comment)
@@ -379,7 +379,7 @@ The app can be run locally with the following code:
 if (!require(remotes)) install.packages("remotes")
 if (!require(mocaredd)) remotes::install_github("gaelso/shinypkgTest")
 
-mocaredd::shiny_run_APPNAME()
+shinypkgTest::shiny_run_APPNAME()
 ```
 
 Or online at: <https://gaelsola.shinyapps.io/shinypkgtest/>

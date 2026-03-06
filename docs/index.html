@@ -2713,7 +2713,7 @@ vertical-align: -.125em;
 </section>
 <section id="deploying-the-app" class="level2">
 <h2 class="anchored" data-anchor-id="deploying-the-app">Deploying the app</h2>
-<p>If you want to host the app online with a service like shinyapps.io, you need to add a file in the root folder (NOT in the R folder, named <code>app.R</code>, with the following code:</p>
+<p>If you want to host the app online with a service like shinyapps.io, you need to add a file in the root folder (NOT in the R folder), named <code>app.R</code>, with the following code:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Launch the ShinyApp (Do not remove this comment)</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># To deploy, run: rsconnect::deployApp()</span></span>
@@ -2769,7 +2769,7 @@ vertical-align: -.125em;
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(remotes)) <span class="fu">install.packages</span>(<span class="st">&quot;remotes&quot;</span>)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(mocaredd)) remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;gaelso/shinypkgTest&quot;</span>)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>mocaredd<span class="sc">::</span><span class="fu">shiny_run_APPNAME</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>shinypkgTest<span class="sc">::</span><span class="fu">shiny_run_APPNAME</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Or online at: <a href="https://gaelsola.shinyapps.io/shinypkgtest/" class="uri">https://gaelsola.shinyapps.io/shinypkgtest/</a></p>
 <p>Happy coding!</p>
