@@ -198,7 +198,7 @@ gh_paths <- gh::gh(
   owner = "openforis", repo = "shinypkg-template", path = dl_dir
   )
 
-if (length(list.files(dl_path)) == 0) {
+if (length(list.files(dl_dir)) == 0) {
   dir.create(dl_dir)
   purrr::walk(seq_along(gh_paths), function(x){
     download.file(
