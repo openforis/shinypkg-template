@@ -2609,7 +2609,7 @@ vertical-align: -.125em;
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">owner =</span> <span class="st">&quot;openforis&quot;</span>, <span class="at">repo =</span> <span class="st">&quot;shinypkg-template&quot;</span>, <span class="at">path =</span> dl_dir</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(<span class="fu">list.files</span>(dl_path)) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(<span class="fu">list.files</span>(dl_dir)) <span class="sc">==</span> <span class="dv">0</span>) {</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dir.create</span>(dl_dir)</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">walk</span>(<span class="fu">seq_along</span>(gh_paths), <span class="cf">function</span>(x){</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">download.file</span>(</span>
